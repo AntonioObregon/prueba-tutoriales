@@ -1,61 +1,78 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Compass Example</title>
+<head>
+<title>Ejemplo 13-1</title>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<meta name="viewport" id="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;"/>
+<script type="text/javascript" charset="utf-8"src="phonegap.js"></script>
+<script type="text/javascript" charset="utf-8">
+// Heading content
+var hc;
+//PhoneGap Ready variable
+var pgr = false;
+//Has compass, assume true
+var hasCompass = true;
+function onBodyLoad() {
+//alert("onBodyLoad");
+document.addEventListener("deviceready", onDeviceReady, false);
+}
+function onDeviceReady() {
+//Get a handle we'll use to adjust the heading
+//content
+hc = document.getElementById('headingInfo');
+//Set the variable that lets other parts of the program
+//know that PhoneGap is initialized
+pgr = true;
+}
+function getHeading() {
+if (pgr == true) {
+if (hasCompass == true) {
+//Clear the current heading content,
+//just in case it takes some time to get the reading
+hc.innerHTML ="Obteniendo la información de la Brújula.";
+//get the current heading
+navigator.compass.getCurrentHeading(onHeadingSuccess, onHeadingError);
+} else {
+alert("No compass, please stop clicking the button.");
+}
+} else {
+alert("Please wait. PhoneGap is not ready.");
+}
+}
+function onHeadingSuccess(heading) {
+//We received something from the API, so...
+//first get the timestamp in a date object
+//so we can work with it
+var d = new Date(heading.timestamp);//Then replace the page's content with the
+//current acceleration retrieved from the API
+hc.innerHTML = "<b>Rumbo magnético:</b> " +
+heading.magneticHeading + "<br /><b>Rumbo real:</b> " + heading.trueHeading + "<br /><b>Precisión del rumbo:</b> " + heading.headingAccuracy + "<br /><b>Marca de tiempo:</b> " + d.toLocaleString();
+}
+function onHeadingError(compassError) {
+if (compassError.code ==
+CompassError.COMPASS_NOT_SUPPORTED) { hc.innerHTML = "Compass not available."
+alert("Compass not supported.");
+hasCompass == false;
+} else if (compassError.code ==
+CompassError.COMPASS_INTERNAL_ERR) {
+alert("Compass Internal Error");
+} else {
+alert("Unknown heading error!");
+}
+}
 
-    <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
-    <script type="text/javascript" charset="utf-8">
+function goToURL(val){
+location.href = val;
+}
 
-    // The watch id references the current `watchHeading`
-    var watchID = null;
-
-    // Wait for device API libraries to load
-    //
-    document.addEventListener("deviceready", onDeviceReady, false);
-
-    // device APIs are available
-    //
-    function onDeviceReady() {
-        startWatch();
-    }
-
-    // Start watching the compass
-    //
-    function startWatch() {
-
-        // Update compass every 3 seconds
-        var options = { frequency: 3000 };
-
-        watchID = navigator.compass.watchHeading(onSuccess, onError, options);
-    }
-
-    // Stop watching the compass
-    //
-    function stopWatch() {
-        if (watchID) {
-            navigator.compass.clearWatch(watchID);
-            watchID = null;
-        }
-    }
-
-    // onSuccess: Get the current heading
-    //
-    function onSuccess(heading) {
-        var element = document.getElementById('heading');
-        element.innerHTML = 'Heading: ' + heading.magneticHeading;
-    }
-
-    // onError: Failed to get the heading
-    //
-    function onError(compassError) {
-        alert('Compass error: ' + compassError.code);
-    }
-
-    </script>
-  </head>
-  <body>
-    <div id="heading">Waiting for heading...</div>
-    <button onclick="startWatch();">Start Watching</button>
-    <button onclick="stopWatch();">Stop Watching</button>
-  </body>
-</html>
+</script>
+</head>
+<body onload="onBodyLoad()">
+<h1>Example 13-1</h1>
+<p>Esta es una aplicacion que mide el rumbo magnético del dispositivo utilizando la API brújula.<br />
+<input type="button" value="Measure Heading"
+onclick="getHeading();"></p>
+<p id="headingInfo"> Nada que vere por aquí (aún) Has tap en el botón.</p>
+<button ONCLICK="javascript:goToURL('segundaversion.html')" style="width: 100%;">Version 2.0</button>
+    </body>
+    </html>
