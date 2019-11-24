@@ -6,6 +6,9 @@
     <script type="text/javascript" charset="utf-8" src="cordova.js"></script>
     <script type="text/javascript" charset="utf-8">
 
+    // The watch id references the current `watchHeading`
+    var watchID = null;
+
     // Wait for device API libraries to load
     //
     document.addEventListener("deviceready", onDeviceReady, false);
@@ -13,25 +16,46 @@
     // device APIs are available
     //
     function onDeviceReady() {
-        navigator.compass.getCurrentHeading(onSuccess, onError);
+        startWatch();
+    }
+
+    // Start watching the compass
+    //
+    function startWatch() {
+
+        // Update compass every 3 seconds
+        var options = { frequency: 3000 };
+
+        watchID = navigator.compass.watchHeading(onSuccess, onError, options);
+    }
+
+    // Stop watching the compass
+    //
+    function stopWatch() {
+        if (watchID) {
+            navigator.compass.clearWatch(watchID);
+            watchID = null;
+        }
     }
 
     // onSuccess: Get the current heading
     //
     function onSuccess(heading) {
-        alert('Heading: ' + heading.magneticHeading);
+        var element = document.getElementById('heading');
+        element.innerHTML = 'Heading: ' + heading.magneticHeading;
     }
 
     // onError: Failed to get the heading
     //
     function onError(compassError) {
-        alert('Compass Error: ' + compassError.code);
+        alert('Compass error: ' + compassError.code);
     }
 
     </script>
   </head>
   <body>
-    <h1>Example</h1>
-    <p>getCurrentHeading</p>
+    <div id="heading">Waiting for heading...</div>
+    <button onclick="startWatch();">Start Watching</button>
+    <button onclick="stopWatch();">Stop Watching</button>
   </body>
 </html>
